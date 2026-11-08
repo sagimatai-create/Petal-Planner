@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Petal Planner</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png"><meta name="theme-color" content="#ffc2d4"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Petal">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff6fa;--card:#fff;--ink:#5b4b66;--mut:#a595b0;--line:#f1dfee;--c0:#ffc2d4;--c1:#ffd9b0;--c2:#bfeccf;--c3:#bde3ff;--c4:#d9c8ff;--g0:#ffec8a;--g1:#ff9f8f;--g2:#7fdcd2;--g3:#d9a0ff;--g4:#b5e86f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#241d2b;--card:#2f2639;--ink:#f0e6f6;--mut:#a899b5;--line:#43364f}}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Quicksand,system-ui,sans-serif}
+body{padding:10px;max-width:1100px;margin:auto}
+button,input,select,textarea{font:inherit;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:14px;padding:6px 10px}
+button{cursor:pointer;transition:transform .15s}button:hover{transform:translateY(-2px) scale(1.04)}button:active{transform:scale(.94)}
+.bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}.bar h1{font-size:1.25rem;margin:0 6px;flex:1;min-width:140px}
+.on{background:var(--c0);font-weight:700}.sv{font-size:.7rem;color:var(--mut)}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.dow{text-align:center;font-size:.75rem;color:var(--mut)}
+.cell{background:var(--card);border:2px solid var(--line);border-radius:14px;min-height:78px;padding:3px;cursor:pointer;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.cell:hover{transform:translateY(-2px);box-shadow:0 4px 12px #d9a0ff44}.cell.off{opacity:.45}.cell.g{background:color-mix(in srgb,var(--gc) 60%,var(--card))}
+.cell.today{border-color:#ff8fb3}.cell.today b{background:#ff8fb3;color:#fff;border-radius:50%;padding:0 5px}.cell.pk{outline:3px dashed #9b7bff}.cell.dr{background:var(--c4)}
+.cell b{font-size:.8rem}.wk .cell{min-height:200px}.tw .cell{min-height:120px}
+.chip{font-size:.66rem;border-radius:8px;padding:1px 4px;margin-top:2px;color:#4a3b55;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:pop .35s}
+.c0{background:var(--c0)}.c1{background:var(--c1)}.c2{background:var(--c2)}.c3{background:var(--c3)}.c4{background:var(--c4)}
+.dn{opacity:.55;text-decoration:line-through}.due{box-shadow:0 0 0 2px #ff6b8b}.more{font-size:.62rem;color:var(--mut)}
+.banner{background:#ffe0ea;color:#8a2c4a;border-radius:14px;padding:6px 12px;margin-bottom:8px;cursor:pointer;animation:pop .4s}
+.panel{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:10px;margin-top:10px}
+.key{display:flex;flex-wrap:wrap;gap:8px}.key label{display:flex;align-items:center;gap:4px;font-size:.8rem}.key input{width:110px;padding:3px 8px}
+.sw{width:18px;height:18px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
+.ov{position:fixed;inset:0;background:#3d2c4a66;display:flex;align-items:flex-end;justify-content:center;z-index:9;animation:fade .2s;padding-top:env(safe-area-inset-top,0px)}
+.sheet{background:var(--bg);width:min(560px,100%);max-height:92%;overflow:auto;border-radius:24px 24px 0 0;padding:14px;animation:up .3s}
+.inl{background:var(--bg)}.row{display:flex;gap:6px;align-items:center;border-radius:12px;padding:5px 8px;margin:4px 0;cursor:pointer;color:#4a3b55;animation:pop .3s}
+.row span{flex:1;overflow:hidden;text-overflow:ellipsis}.row img{height:34px;border-radius:6px}.row button{padding:0 6px;border-radius:10px}
+.fm{display:grid;gap:6px;margin-top:8px}.fm .r{display:flex;gap:6px;flex-wrap:wrap}.fm textarea{min-height:60px}
+.pick{width:28px;height:28px;border-radius:50%;padding:0;border:3px solid #fff}.pick.s{border-color:#5b4b66}
+.prev{max-width:100%;max-height:140px;border-radius:12px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#5b4b66;color:#fff;padding:8px 16px;border-radius:20px;z-index:20;animation:pop .3s}
+@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:none;opacity:1}}@keyframes fade{from{opacity:0}}@keyframes up{from{transform:translateY(40px);opacity:0}}
+.calm *,.calm{animation:none!important;transition:none!important}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:560px){.cell{min-height:62px}.chip{font-size:.58rem}}
+</style></head><body>
+<div id="app"></div><div id="ov"></div>
+<script>
+const K='petal-planner-v1',$=s=>document.querySelector(s),IC={todo:'☐',event:'◷',note:'✎',image:'🖼',remind:'⏰'},TY=Object.keys(IC),TN={todo:'To-do',event:'Event',note:'Note',image:'Photo',remind:'Reminder'};
+const def=()=>({items:[],cats:['Personal','Work','Health','Fun','Other'],groups:[0,1,2,3,4].map(i=>({n:'Group '+(i+1),d:[]})),reduce:false,created:Date.now(),lastBackup:0});
+function load(){try{const r=JSON.parse(localStorage.getItem(K));if(r&&Array.isArray(r.items))return Object.assign(def(),r)}catch(e){}return def()}
+let S=load(),U=[],R=[],V={view:'month',a:'',sel:false,pick:new Set(),o:null,m:null,key:true},E=newE();
+function newE(){return{id:null,type:'todo',title:'',text:'',cat:0,time:'',rep:'',img:'',date:''}}
+const pad=n=>String(n).padStart(2,'0');function fmt(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)},add=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const today=()=>fmt(new Date()),nowHM=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+const st=()=>JSON.stringify(S);
+function toast(t){document.querySelectorAll('.toast').forEach(x=>x.remove());const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.append(e);setTimeout(()=>e.remove(),3200)}
+function persist(){const s=$('#sv');try{localStorage.setItem(K,st());if(s)s.textContent='Saved ✓'}catch(e){if(U.length)S=JSON.parse(U.pop());toast('Storage full — change undone. Export a backup & remove big photos.');if(s)s.textContent='Not saved'}}
+function commit(f){U.push(st());if(U.length>40)U.shift();R=[];try{f()}catch(e){S=JSON.parse(U.pop());toast('Something went wrong — nothing was changed')}persist();render()}
+function undo(){if(!U.length)return toast('Nothing to undo');R.push(st());S=JSON.parse(U.pop());persist();render()}
+function redo(){if(!R.length)return toast('Nothing to redo');U.push(st());S=JSON.parse(R.pop());persist();render()}
+function occurs(i,ds){if(ds<i.date)return false;if(!i.rep)return ds===i.date;const a=parse(i.date),b=parse(ds);return i.rep==='weekly'?Math.round((b-a)/864e5)%7===0:b.getDate()===a.getDate()}
+const itemsOn=ds=>S.items.filter(i=>occurs(i,ds)).sort((a,b)=>(a.time||'99').localeCompare(b.time||'99'));
+const isDone=(i,ds)=>!!(i.done&&i.done[ds]);
+function isDue(i,ds){if(i.type!=='remind'||isDone(i,ds))return false;const t=today();return ds<t||(ds===t&&(!i.time||i.time<=nowHM()))}
+function dueList(){const t=today(),o=[];S.items.forEach(i=>{if(i.type!=='remind')return;if(i.rep){if(occurs(i,t)&&isDue(i,t))o.push([i,t])}else if(i.date<=t&&isDue(i,i.date))o.push([i,i.date])});return o}
+const chip=(i,ds)=>`<div class="chip c${i.cat}${isDone(i,ds)?' dn':''}${isDue(i,ds)?' due':''}" draggable="true" data-a="chip" data-id="${i.id}" data-d="${ds}">${IC[i.type]}${i.rep?'↻':''} ${esc(i.title||'Photo')}</div>`;
+function cell(d,v,am){const ds=fmt(d),its=itemsOn(ds),g=S.groups.findIndex(g=>g.d.includes(ds)),mx=v==='month'?3:99;
+let h=`<div class="cell${ds===today()?' today':''}${v==='month'&&d.getMonth()!==am?' off':''}${V.pick.has(ds)?' pk':''}${g>=0?' g':''}"${g>=0?` style="--gc:var(--g${g})"`:''} data-a="cell" data-d="${ds}"><b>${d.getDate()}</b>`;
+its.slice(0,mx).forEach(i=>h+=chip(i,ds));if(its.length>mx)h+=`<div class="more">+${its.length-mx} more</div>`;return h+'</div>'}
+function ed(ds){const L=itemsOn(ds).map(i=>`<div class="row c${i.cat}${isDue(i,ds)?' due':''}" data-a="edit" data-id="${i.id}" data-d="${ds}">${i.type==='todo'||i.type==='remind'?`<button data-a="tg" data-id="${i.id}" data-d="${ds}">${isDone(i,ds)?'☑':'☐'}</button>`:`<b>${IC[i.type]}</b>`}<span style="${isDone(i,ds)?'text-decoration:line-through;opacity:.6':''}">${i.time?i.time+' ':''}${esc(i.title||TN[i.type])}${i.rep?' ↻':''}${isDue(i,ds)?' ❗':''}</span>${i.img?`<img src="${i.img}">`:''}<button data-a="del" data-id="${i.id}">✕</button></div>`).join('')||'<p style="color:var(--mut)">Nothing yet — add something sweet ✿</p>';
+const t=E.type;return `<h2 style="margin:0 0 6px">${parse(ds).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</h2>${L}
+<div class="fm"><div class="r">${TY.map(x=>`<button class="${x===t?'on':''}" data-a="type" data-t="${x}">${IC[x]} ${TN[x]}</button>`).join('')}</div>
+<input id="f-title" placeholder="${E.id?'Edit title':'Title'}" value="${esc(E.title)}">
+<div class="r">${t==='event'||t==='remind'?`<input id="f-time" type="time" value="${E.time}">`:''}${t!=='image'?`<select id="f-rep"><option value="">No repeat</option><option value="weekly"${E.rep==='weekly'?' selected':''}>Weekly</option><option value="monthly"${E.rep==='monthly'?' selected':''}>Monthly</option></select>`:''}<input id="f-date" type="date" value="${E.date||ds}"></div>
+<div class="r">${S.cats.map((n,i)=>`<button class="pick c${i}${E.cat===i?' s':''}" title="${esc(n)}" data-a="cat" data-i="${i}"></button>`).join('')}</div>
+<textarea id="f-text" placeholder="Notes / details">${esc(E.text)}</textarea>
+${t==='image'?`<input id="f-img" type="file" accept="image/*">${E.img?`<img class="prev" src="${E.img}">`:''}`:''}
+<div class="r"><button class="on" data-a="save" data-d="${ds}">${E.id?'Save changes':'Add'}</button>${E.id?'<button data-a="cancel">New item</button>':''}</div></div>`}
+function grab(){const g=id=>$(id);if(g('#f-title'))E.title=g('#f-title').value;if(g('#f-text'))E.text=g('#f-text').value;if(g('#f-time'))E.time=g('#f-time').value;if(g('#f-rep'))E.rep=g('#f-rep').value;if(g('#f-date'))E.date=g('#f-date').value}
+function render(){document.body.classList.toggle('calm',!!S.reduce);const v=V.view,a=parse(V.a),T=today();let ttl,days=[],am=a.getMonth();
+if(v==='month'){const f=new Date(a.getFullYear(),am,1),n=new Date(a.getFullYear(),am+1,0).getDate(),s=add(f,-f.getDay()),w=Math.ceil((f.getDay()+n)/7);days=[...Array(w*7)].map((_,i)=>add(s,i));ttl=f.toLocaleDateString(undefined,{month:'long',year:'numeric'})}
+else if(v==='day'){ttl=a.toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'})}
+else{const s=add(a,-a.getDay());days=[...Array(v==='week'?7:14)].map((_,i)=>add(s,i));ttl=days[0].toLocaleDateString(undefined,{month:'short',day:'numeric'})+' – '+days[days.length-1].toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}
+const due=dueList();let h=`<div class="bar"><button data-a="nav" data-n="-1">◀</button><button data-a="nav" data-n="1">▶</button><button class="on" data-a="today">Today</button><h1>${ttl}</h1><input type="date" id="jump" value="${V.a}" title="Jump to any date"></div>
+<div class="bar">${[['month','Month'],['tw','2 Weeks'],['week','Week'],['day','Day']].map(([k,l])=>`<button class="${(v===k||(v==='2w'&&k==='tw'))?'on':''}" data-a="view" data-v="${k==='tw'?'2w':k}">${l}</button>`).join('')}
+<span style="flex:1"></span><button class="${V.sel?'on':''}" data-a="sel">☑ Select dates</button><button data-a="search">🔍</button><button data-a="undo">↶</button><button data-a="redo">↷</button><button data-a="data">💾</button><button class="${S.reduce?'on':''}" data-a="calm" title="Reduce motion">🍃</button><span class="sv" id="sv">Saved ✓</span></div>`;
+if(due.length)h+=`<div class="banner" data-a="due">⏰ ${due.length} reminder${due.length>1?'s':''} due — tap to view</div>`;
+if(S.items.length&&Date.now()-(S.lastBackup||S.created||Date.now())>6048e5)h+=`<div class="banner" data-a="bk">💾 It’s been a week since your last backup — tap to back up</div>`;
+if(V.sel)h+=`<div class="panel">${V.pick.size} date${V.pick.size===1?'':'s'} selected. Add to group: ${S.groups.map((g,i)=>`<button data-a="grp" data-i="${i}" title="${esc(g.n)}"><span class="sw" style="background:var(--g${i})"></span> ${esc(g.n)}</button>`).join(' ')} <button data-a="clrpick">Clear</button></div>`;
+if(v==='day')h+=`<div class="panel inl">${ed(V.a)}</div>`;
+else h+=`<div class="grid ${v==='week'?'wk':v==='2w'?'tw':''}">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(x=>`<div class="dow">${x}</div>`).join('')}${days.map(d=>cell(d,v,am)).join('')}</div>`;
+h+=`<div class="panel"><b>🎀 Color key</b> <button data-a="keyt">${V.key?'hide':'show'}</button>${V.key?`<div style="margin-top:6px"><small>Categories (items)</small><div class="key">${S.cats.map((n,i)=>`<label><span class="sw c${i}"></span><input data-cat="${i}" value="${esc(n)}"></label>`).join('')}</div><small>Date groups (highlights)</small><div class="key">${S.groups.map((g,i)=>`<label><span class="sw" style="background:var(--g${i})"></span><input data-grp="${i}" value="${esc(g.n)}"> <small>${g.d.length}</small><button data-a="clrg" data-i="${i}">✕</button></label>`).join('')}</div></div>`:''}</div>`;
+$('#app').innerHTML=h;const o=$('#ov');
+if(V.m==='day'&&V.o)o.innerHTML=`<div class="ov" data-a="close"><div class="sheet" id="sh">${ed(V.o)}<p><button data-a="close">Done</button></p></div></div>`;
+else if(V.m==='search')o.innerHTML=`<div class="ov" data-a="close"><div class="sheet" id="sh"><input id="q" placeholder="Search titles & notes…" style="width:100%" autofocus><div id="res"></div></div></div>`;
+else if(V.m==='data')o.innerHTML=`<div class="ov" data-a="close"><div class="sheet" id="sh"><h2 style="margin:0">Backup & restore</h2><p>Copy this text (or download) and keep it safe. To restore: paste it below or choose the file.</p><textarea id="dat" style="width:100%;height:110px">${esc(st().replace(/data:image[^"]*/g,m=>m))}</textarea><div class="r fm"><div class="r"><button data-a="copy">Copy</button><button data-a="dl">Download file</button><button class="on" data-a="imp">Restore from text</button></div><input type="file" id="impf" accept=".json,application/json"></div><small>Storage used: ${Math.round(st().length/1024)} KB of about 5000 KB. Photos are shrunk automatically.</small><p><button data-a="close">Close</button></p></div></div>`;
+else o.innerHTML=''}
+function openDay(ds,id){V.o=ds;V.m='day';const it=id&&S.items.find(i=>i.id===id);E=it?{id:it.id,type:it.type,title:it.title||'',text:it.text||'',cat:it.cat,time:it.time||'',rep:it.rep||'',img:it.img||'',date:it.date}:newE();if(V.view==='day'){V.a=ds;V.m=null}render()}
+function comp(f){return new Promise((ok,no)=>{if(f.size>15e6)return no('Photo is over 15 MB');const r=new FileReader();r.onerror=no;r.onload=()=>{const im=new Image();im.onerror=no;im.onload=()=>{const enc=(m,q)=>{const k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL('image/jpeg',q)};let d=enc(800,.6);if(d.length>250000)d=enc(520,.5);ok(d)};im.src=r.result};r.readAsDataURL(f)})}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;const a=t.dataset.a,d=t.dataset.d;
+if(a==='close'){if(e.target.closest('#sh')&&!t.matches('button'))return;V.m=null;V.o=null;E=newE();return render()}
+if(e.target.closest('#sh')&&t.classList.contains('ov'))return;
+switch(a){
+case'nav':{const n=+t.dataset.n,x=parse(V.a),v=V.view;V.a=fmt(v==='month'?new Date(x.getFullYear(),x.getMonth()+n,1):add(x,n*(v==='2w'?14:v==='week'?7:1)));render();break}
+case'today':V.a=today();render();break;case'view':V.view=t.dataset.v;render();break;
+case'sel':V.sel=!V.sel;V.pick=new Set();render();break;case'clrpick':V.pick=new Set();render();break;case'keyt':V.key=!V.key;render();break;
+case'cell':if(V.sel){V.pick.has(d)?V.pick.delete(d):V.pick.add(d);render()}else openDay(d);break;
+case'chip':e.stopPropagation();if(V.sel){V.pick.has(d)?V.pick.delete(d):V.pick.add(d);render()}else openDay(d,t.dataset.id);break;
+case'edit':{const it=S.items.find(i=>i.id===t.dataset.id);if(it){E={id:it.id,type:it.type,title:it.title||'',text:it.text||'',cat:it.cat,time:it.time||'',rep:it.rep||'',img:it.img||'',date:it.date};render()}break}
+case'tg':e.stopPropagation();commit(()=>{const it=S.items.find(i=>i.id===t.dataset.id);it.done=it.done||{};it.done[d]=!it.done[d]});break;
+case'del':e.stopPropagation();commit(()=>{S.items=S.items.filter(i=>i.id!==t.dataset.id)});if(E.id===t.dataset.id)E=newE();render();toast('Deleted — tap ↶ to undo');break;
+case'type':grab();E.type=t.dataset.t;render();break;case'cat':grab();E.cat=+t.dataset.i;render();break;case'cancel':E=newE();render();break;
+case'save':{grab();if(!E.title.trim()&&!E.img&&E.type!=='note'){return toast('Please add a title ✿')}const p={type:E.type,title:E.title.trim(),text:E.text,cat:E.cat,time:E.time,rep:E.type==='image'?'':E.rep,img:E.type==='image'?E.img:''};
+commit(()=>{if(E.id){const it=S.items.find(i=>i.id===E.id);Object.assign(it,p,{date:E.date||d})}else S.items.push({...p,id:uid(),date:E.date||d,done:{}})});E=newE();render();break}
+case'grp':commit(()=>{const g=S.groups[+t.dataset.i],p=[...V.pick],all=p.length&&p.every(x=>g.d.includes(x));S.groups.forEach(q=>q.d=q.d.filter(x=>!p.includes(x)));if(!all)g.d.push(...p);V.pick=new Set();V.sel=false});break;
+case'clrg':commit(()=>{S.groups[+t.dataset.i].d=[]});break;
+case'search':V.m='search';render();break;case'data':V.m='data';render();break;
+case'undo':undo();break;case'redo':redo();break;case'calm':commit(()=>{S.reduce=!S.reduce});break;
+case'due':{const l=dueList();if(l.length)openDay(l[0][1],l[0][0].id);break}
+case'bk':V.m='data';render();break;
+case'copy':{S.lastBackup=Date.now();persist();const x=$('#dat');x.select();try{navigator.clipboard.writeText(x.value)}catch(_){document.execCommand('copy')}toast('Copied ✓');break}
+case'dl':{S.lastBackup=Date.now();persist();try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([st()],{type:'application/json'}));a.download='petal-planner-backup.json';a.click();toast('If nothing downloads, use Copy instead')}catch(_){toast('Use Copy instead')}break}
+case'imp':imp($('#dat').value);break}});
+function imp(txt){try{const o=JSON.parse(txt);if(!o||!Array.isArray(o.items))throw 0;commit(()=>{S=Object.assign(def(),o)});V.m=null;render();toast('Restored ✓ (↶ to undo)')}catch(e){toast('That doesn’t look like a valid backup')}}
+document.addEventListener('change',e=>{const t=e.target;
+if(t.id==='jump'&&t.value){V.a=t.value;render()}
+else if(t.dataset.cat!==undefined)commit(()=>{S.cats[+t.dataset.cat]=t.value||'Category'});
+else if(t.dataset.grp!==undefined)commit(()=>{S.groups[+t.dataset.grp].n=t.value||'Group'});
+else if(t.id==='f-img'&&t.files[0]){grab();comp(t.files[0]).then(d=>{E.img=d;render()}).catch(m=>toast(typeof m==='string'?m:'Couldn’t read that photo'))}
+else if(t.id==='impf'&&t.files[0]){t.files[0].text().then(imp).catch(()=>toast('Couldn’t read file'))}});
+document.addEventListener('input',e=>{if(e.target.id!=='q')return;const q=e.target.value.toLowerCase().trim(),r=$('#res');if(!q){r.innerHTML='';return}
+const m=S.items.filter(i=>((i.title||'')+' '+(i.text||'')).toLowerCase().includes(q)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,60);
+r.innerHTML=m.map(i=>`<div class="row c${i.cat}" data-a="hit" data-id="${i.id}" data-d="${i.date}">${IC[i.type]} <span>${esc(i.title||TN[i.type])}</span><small>${i.date}</small></div>`).join('')||'<p>No matches</p>'});
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a=hit]');if(t){V.a=t.dataset.d;V.m=null;openDay(t.dataset.d,t.dataset.id)}});
+document.addEventListener('dragstart',e=>{const c=e.target.closest('[data-a=chip]');if(c){e.dataTransfer.setData('text/plain',c.dataset.id);e.dataTransfer.effectAllowed='move'}});
+document.addEventListener('dragover',e=>{const c=e.target.closest('.cell');if(c){e.preventDefault();document.querySelectorAll('.dr').forEach(x=>x.classList.remove('dr'));c.classList.add('dr')}});
+document.addEventListener('drop',e=>{const c=e.target.closest('.cell');if(!c)return;e.preventDefault();const id=e.dataTransfer.getData('text/plain');if(id)commit(()=>{S.items.find(i=>i.id===id).date=c.dataset.d});toast('Moved ✿ (↶ to undo)')});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='z'&&!/INPUT|TEXTAREA/.test(e.target.tagName)){e.preventDefault();e.shiftKey?redo():undo()}if(e.key==='Escape'&&V.m){V.m=null;render()}});
+setInterval(()=>{if(!V.m&&!document.activeElement.matches('input,textarea'))render()},30000);
+V.a=fmt(new Date());render();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script></body></html>
